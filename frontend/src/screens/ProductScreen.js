@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelection, useSelector } from 'react-redux'
 import { Row, Col, Image, ListGroup, Card, Button, ListGroupItem} from 'react-bootstrap'
 import Rating from '../components/Rating'
+import Message from '../components/Message'
+import Loader from '../components/Loader'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { listProductDetail } from '../actions/productAction'
 
 
 const ProductScreen = ({ match }) => {
     const  { id } = useParams();
-    // const product = products.find(p => p._id === id)
+    const dispatch = useDispatch();
+    const productDetail = useSelector(state => state.productDetail)
+    const { loading, error, product } = productDetail
 
-    const [ product, setProducts] = useState({})
 
     useEffect(() => {
-        const fetchProducts = async () => {
-          const { data } = await axios.get(`/api/products/${id}`)
-    
-          setProducts(data)
-        }
-    
-        fetchProducts()
-      }, [])
+        dispatch(listProductDetail(id))
+      }, [dispatch, match])
+
 
   return (
     <>
         <Link className='btn btn-light my-3' to='/'>
             Back
         </Link>
-
-        <Row>
+        {loading ? <Loader /> ? error : <Message variant='danger'>{error}</Message> : 
+            <Row>
             <Col sm={6}>
                 <Image src={product.image} alt={product.name} fluid></Image>
             </Col>
@@ -86,10 +86,12 @@ const ProductScreen = ({ match }) => {
                             </Button>
                         </ListGroup.Item>
 
-                    </ListGroup>
-                </Card>
-            </Col>
-        </Row>
+                        </ListGroup>
+                    </Card>
+                </Col>
+            </Row>
+        }
+        
     </>
   )
 }
